@@ -780,41 +780,38 @@ screenshotBtn.addEventListener('click', async () => {
   screenshotBtn.disabled = false;
 });
 
-// ============ 背景音乐 ============
+// ============ 背景音乐（仅主动点击音乐按钮才加载） ============
 const bgMusic = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('musicBtn');
-let musicPlaying = true;
+let musicPlaying = false;
+let musicLoaded = false;
 
-// 自动播放（需用户交互，延迟加载减轻移动端压力）
-let musicInited = false;
-function initMusic() {
-  if (musicInited) return;
-  musicInited = true;
-  bgMusic.volume = 0.4;
-  musicBtn.textContent = '⏳';
-  bgMusic.load();
-  bgMusic.play().then(() => {
-    musicPlaying = true;
-    musicBtn.classList.add('playing');
-    musicBtn.textContent = '🎵';
-  }).catch(() => {
-    musicPlaying = false;
-    musicBtn.classList.remove('playing');
-    musicBtn.textContent = '🔇';
-  });
-}
-
-document.addEventListener('click', initMusic, { once: true });
-document.addEventListener('touchstart', initMusic, { once: true });
+musicBtn.textContent = '🎵';
+musicBtn.classList.remove('playing');
 
 musicBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  if (!musicInited) { initMusic(); return; }
+  if (!musicLoaded) {
+    // 首次点击：加载音乐
+    musicBtn.textContent = '⏳';
+    bgMusic.volume = 0.4;
+    bgMusic.load();
+    bgMusic.play().then(() => {
+      musicLoaded = true;
+      musicPlaying = true;
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '🎵';
+    }).catch(() => {
+      musicBtn.textContent = '🔇';
+    });
+    return;
+  }
+  // 已加载：切换播放/暂停
   if (musicPlaying) {
     bgMusic.pause();
     musicPlaying = false;
     musicBtn.classList.remove('playing');
-    musicBtn.textContent = '🔇';
+    musicBtn.textContent = '🎵';
   } else {
     bgMusic.play().then(() => {
       musicPlaying = true;
