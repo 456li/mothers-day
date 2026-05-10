@@ -412,7 +412,7 @@ body {
 </div>
 
 <!-- 背景音乐 -->
-<audio id="bgMusic" loop preload="auto">
+<audio id="bgMusic" loop preload="none">
   <source src="bgm.mp3" type="audio/mpeg">
 </audio>
 
@@ -785,11 +785,14 @@ const bgMusic = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('musicBtn');
 let musicPlaying = true;
 
-// 自动播放（需用户交互）
+// 自动播放（需用户交互，延迟加载减轻移动端压力）
 let musicInited = false;
 function initMusic() {
   if (musicInited) return;
+  musicInited = true;
   bgMusic.volume = 0.4;
+  musicBtn.textContent = '⏳';
+  bgMusic.load();
   bgMusic.play().then(() => {
     musicPlaying = true;
     musicBtn.classList.add('playing');
@@ -799,7 +802,6 @@ function initMusic() {
     musicBtn.classList.remove('playing');
     musicBtn.textContent = '🔇';
   });
-  musicInited = true;
 }
 
 document.addEventListener('click', initMusic, { once: true });
