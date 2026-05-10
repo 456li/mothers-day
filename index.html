@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>母亲节快乐 · 专属祝福</title>
+<!-- 微信/社交分享 OG 标签 -->
+<meta property="og:title" content="💐 母亲节快乐 · 专属祝福">
+<meta property="og:description" content="亲爱的妈妈，您辛苦了！点击生成您的专属母亲节祝福，愿您永远被时光温柔以待。">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f490.svg">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://456li.github.io/mothers-day/">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="母亲节专属祝福页面——爱心飘落、专属文案、保存海报，致最亲爱的妈妈。">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
 </script>
 <style>
@@ -103,6 +111,21 @@ body {
   box-shadow: 0 8px 40px rgba(150,50,70,0.12), 0 2px 8px rgba(150,50,70,0.06);
   text-align: center;
   transition: transform 0.3s;
+  animation: cardFloat 6s ease-in-out infinite;
+}
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* 长按提示 */
+.hold-hint {
+  font-size: 11px;
+  color: var(--text-light);
+  opacity: 0.5;
+  margin-top: 18px;
+  letter-spacing: 2px;
+  user-select: none;
 }
 
 /* 标题 */
@@ -373,6 +396,7 @@ body {
       <p class="message-text" id="messageText"></p>
       <button class="btn btn-outline" id="screenshotBtn">📸 保存专属海报</button>
     </div>
+    <p class="hold-hint">长按屏幕 · 释放漫天爱心 💗</p>
   </div>
 </div>
 
@@ -412,6 +436,19 @@ const heartColors = [
   '#ff9eb5', '#ffcad4', '#ea5c7c', '#f8a4b8',
 ];
 
+// 花瓣颜色
+const petalColors = [
+  '#ffe0e6', '#ffd1dc', '#ffc2d1', '#ffb3c6',
+  '#fde0e8', '#fcd5e0', '#ffdae4', '#f8d8e0',
+  '#ffe5ec', '#ffdade', '#fde2e8', '#fff0f3',
+];
+
+// 星光颜色
+const sparkColors = [
+  '#fff8e1', '#fffde7', '#ffecb3', '#ffe082',
+  '#ffd54f', '#ffca28', '#fff9c4', '#fff176',
+];
+
 // 爱心绘制
 function drawHeart(x, y, size, rotation, alpha) {
   ctx.save();
@@ -427,6 +464,42 @@ function drawHeart(x, y, size, rotation, alpha) {
   ctx.bezierCurveTo(s * 0.45, -s * 0.2, 0, s * 0.05, 0, s * 0.3);
   ctx.closePath();
   ctx.fill();
+  ctx.restore();
+}
+
+// 花瓣绘制（椭圆 + 尖端）
+function drawPetal(x, y, size, rotation, alpha) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, size * 0.5, size * 0.22, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 小尖端
+  ctx.beginPath();
+  ctx.ellipse(0, -size * 0.15, size * 0.15, size * 0.35, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// 星光绘制
+function drawSparkle(x, y, size, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  // 光晕
+  const glow = ctx.createRadialGradient(x, y, 0, x, y, size * 1.2);
+  glow.addColorStop(0, 'rgba(255,248,225,0.9)');
+  glow.addColorStop(0.4, 'rgba(255,224,130,0.5)');
+  glow.addColorStop(1, 'rgba(255,224,130,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(x, y, size * 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  // 十字光芒
+  ctx.fillStyle = 'rgba(255,248,225,0.9)';
+  ctx.fillRect(x - size * 0.55, y - size * 0.08, size * 1.1, size * 0.16);
+  ctx.fillRect(x - size * 0.08, y - size * 0.55, size * 0.16, size * 1.1);
   ctx.restore();
 }
 
@@ -462,29 +535,116 @@ class Heart {
   }
 }
 
-const hearts = Array.from({ length: 55 }, () => new Heart());
+// 花瓣粒子
+class Petal {
+  constructor(x, y) {
+    this.x = x ?? Math.random() * w;
+    this.y = y ?? Math.random() * h;
+    this.size = 4 + Math.random() * 14;
+    this.speed = 0.2 + Math.random() * 0.7;
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.03;
+    this.wobbleOffset = Math.random() * Math.PI * 2;
+    this.wobbleSpeed = 0.005 + Math.random() * 0.015;
+    this.color = petalColors[Math.floor(Math.random() * petalColors.length)];
+    this.alpha = 0.2 + Math.random() * 0.45;
+  }
+  update() {
+    this.y += this.speed;
+    this.x += Math.sin(this.wobbleOffset + this.y * this.wobbleSpeed) * 0.6;
+    this.rotation += this.rotationSpeed;
+    if (this.y > h + 30) { this.y = -30; this.x = Math.random() * w; }
+  }
+  draw() { drawPetal(this.x, this.y, this.size, this.rotation, this.alpha); }
+}
 
-// 点击生成额外爱心
-window.addEventListener('click', (e) => {
-  for (let i = 0; i < 5; i++) {
+// 星光粒子
+class Sparkle {
+  constructor(x, y) {
+    this.x = x ?? Math.random() * w;
+    this.y = y ?? Math.random() * h;
+    this.size = 2 + Math.random() * 6;
+    this.alpha = 0;
+    this.alphaSpeed = 0.01 + Math.random() * 0.03;
+    this.phase = Math.random() * Math.PI * 2;
+    this.twinkleSpeed = 0.02 + Math.random() * 0.06;
+    this.lifetime = 0;
+  }
+  update() {
+    this.lifetime++;
+    this.alpha = 0.35 + Math.sin(this.lifetime * this.twinkleSpeed + this.phase) * 0.35;
+    if (this.lifetime > 300) { this.lifetime = 0; this.x = Math.random() * w; this.y = Math.random() * h; }
+  }
+  draw() { drawSparkle(this.x, this.y, this.size, this.alpha); }
+}
+
+const hearts = Array.from({ length: 55 }, () => new Heart());
+const petals = Array.from({ length: 25 }, () => new Petal());
+const sparkles = Array.from({ length: 18 }, () => new Sparkle());
+
+// 点击生成额外粒子
+function spawnBurst(x, y, count) {
+  for (let i = 0; i < count; i++) {
     const h = new Heart();
-    h.x = e.clientX + (Math.random() - 0.5) * 80;
-    h.y = e.clientY + (Math.random() - 0.5) * 40;
-    h.size = 8 + Math.random() * 20;
-    h.speed = 0.5 + Math.random() * 1;
+    h.x = x + (Math.random() - 0.5) * 120;
+    h.y = y + (Math.random() - 0.5) * 60;
+    h.size = 8 + Math.random() * 24;
+    h.speed = 0.6 + Math.random() * 1.4;
     hearts.push(h);
   }
-  // 限制总数
-  while (hearts.length > 150) hearts.shift();
+  for (let i = 0; i < Math.floor(count / 2); i++) {
+    const p = new Petal(
+      x + (Math.random() - 0.5) * 100,
+      y + (Math.random() - 0.5) * 40
+    );
+    petals.push(p);
+  }
+  for (let i = 0; i < Math.floor(count / 3); i++) {
+    const s = new Sparkle(
+      x + (Math.random() - 0.5) * 80,
+      y + (Math.random() - 0.5) * 30
+    );
+    sparkles.push(s);
+  }
+  while (hearts.length > 200) hearts.shift();
+  while (petals.length > 80) petals.shift();
+  while (sparkles.length > 50) sparkles.shift();
+}
+
+window.addEventListener('click', (e) => {
+  spawnBurst(e.clientX, e.clientY, 5);
+});
+
+// 长按释放大波爱心
+let longPressTimer = null;
+let longPressFired = false;
+
+window.addEventListener('pointerdown', (e) => {
+  longPressFired = false;
+  longPressTimer = setTimeout(() => {
+    longPressFired = true;
+    spawnBurst(e.clientX, e.clientY, 30);
+    showToast('💗 爱心雨来啦！');
+  }, 600);
+});
+
+window.addEventListener('pointerup', () => {
+  clearTimeout(longPressTimer);
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (longPressTimer && !longPressFired) {
+    // 移动超过阈值则取消长按
+    // 这里简单处理：pointerup 时清除即可
+  }
 });
 
 // 动画循环
 function animate() {
   ctx.clearRect(0, 0, w, h);
-  for (const heart of hearts) {
-    heart.update();
-    heart.draw();
-  }
+  for (const sparkle of sparkles) { sparkle.update(); sparkle.draw(); }
+  for (const petal of petals) { petal.update(); petal.draw(); }
+  for (const heart of hearts) { heart.update(); heart.draw(); }
   requestAnimationFrame(animate);
 }
 animate();
@@ -496,6 +656,21 @@ const messages = [
   '致最亲爱的<span class="message-name">{name}</span>：您是晨曦中最温柔的呼唤，是黄昏里最暖的灯火。从牙牙学语到独当一面，每一步成长都浸润着您的爱与汗水。母亲节快乐，愿您被岁月善待，永远美丽从容。',
   '<span class="message-name">{name}</span>，您辛苦了。您把最好的年华给了我们，把最深的牵挂系在我们身上。您的爱是家的底色，是无论走到哪里都亮着的那盏灯。母亲节快乐，愿您幸福常伴，平安喜乐。',
   '亲爱的<span class="message-name">{name}</span>：有人说，上帝无法无处不在，所以创造了母亲。您是我们的守护天使，用平凡的身躯做着最不平凡的事。母亲节快乐，愿您的每一天都被爱包围。',
+  '<span class="message-name">{name}</span>，您是我们生命中最温柔的诗行。"慈母手中线，游子身上衣"，孟郊千年前写下的句子，至今读来仍让人动容。您的每一针一线、每一句叮咛，都是爱最好的注脚。母亲节快乐。',
+  '亲爱的<span class="message-name">{name}</span>："谁言寸草心，报得三春晖。"您的恩情如山高、似海深，我们用尽一生也难报答万一。但求时光慢些，让您白发少些，笑容多些。您辛苦了。',
+  '<span class="message-name">{name}</span>，母亲节快乐。"爱子心无尽，归家喜及辰。"无论我们走多远，您永远是归途的方向，是风雪中最暖的那扇门。愿您身体健康，岁月无忧。',
+  '致<span class="message-name">{name}</span>："当时父母念，今日尔应知。"长大后，我们才真正懂得您当年的不易与深情。感谢您用青春和汗水，为我们铺就一条温暖坦途。母亲，您是最了不起的人。',
+  '亲爱的<span class="message-name">{name}</span>："搴帷拜母河梁去，白发愁看泪眼枯。"古人的离别与思念，何尝不是我们心中那份对母亲深深的牵挂。愿您永远被爱、被珍惜，母亲节快乐。',
+];
+const poetryQuote = [
+  '慈母手中线，游子身上衣。',
+  '谁言寸草心，报得三春晖。',
+  '爱子心无尽，归家喜及辰。',
+  '当时父母念，今日尔应知。',
+  '搴帷拜母河梁去，白发愁看泪眼枯。',
+  '月明闻杜宇，南北总关心。',
+  '辛勤三十日，母瘦雏渐肥。',
+  '哀哀父母，生我劬劳。',
 ];
 let lastMsgIndex = -1;
 
@@ -504,7 +679,10 @@ function getRandomMessage(name) {
   do { idx = Math.floor(Math.random() * messages.length); }
   while (idx === lastMsgIndex && messages.length > 1);
   lastMsgIndex = idx;
-  return messages[idx].replace(/\{name\}/g, name);
+  let msg = messages[idx].replace(/\{name\}/g, name);
+  const poem = poetryQuote[Math.floor(Math.random() * poetryQuote.length)];
+  msg += '<br><span style="display:block;margin-top:12px;font-style:italic;color:#c9976b;letter-spacing:2px;font-size:14px;">—— 「' + poem + '」</span>';
+  return msg;
 }
 
 // ============ 交互逻辑 ============
@@ -549,8 +727,11 @@ generateBtn.addEventListener('click', () => {
   const msg = getRandomMessage(name);
   messageText.innerHTML = msg;
   messageBox.classList.add('show');
-  // 生成海报内容
-  posterMsg.textContent = msg.replace(/<[^>]*>/g, '');
+  // 生成海报内容（保留诗词换行）
+  const posterText = msg.replace(/<span class="message-name">(.*?)<\/span>/g, '$1')
+    .replace(/<br>/g, '\n')
+    .replace(/<[^>]*>/g, '');
+  posterMsg.innerHTML = posterText.replace(/\n/g, '<br>');
   generatePosterHearts();
   // 滚动到文案
   messageBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
