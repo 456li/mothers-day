@@ -118,7 +118,81 @@ body {
   50% { transform: translateY(-8px); }
 }
 
-/* 长按提示 */
+/* 花束容器 */
+.bouquet {
+  margin-top: 20px;
+  display: none;
+  animation: bouquetRise 1s ease-out forwards;
+  position: relative;
+}
+.bouquet.show { display: flex; justify-content: center; align-items: flex-end; gap: 4px; }
+@keyframes bouquetRise {
+  0%   { opacity: 0; transform: translateY(40px) scale(0.7); }
+  60%  { opacity: 1; transform: translateY(-4px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.flower-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: flowerBloom 0.6s ease-out forwards;
+  opacity: 0;
+  transform-origin: bottom center;
+}
+.flower-item:nth-child(1) { animation-delay: 0.3s; }
+.flower-item:nth-child(2) { animation-delay: 0.45s; }
+.flower-item:nth-child(3) { animation-delay: 0.2s; }
+.flower-item:nth-child(4) { animation-delay: 0.55s; }
+.flower-item:nth-child(5) { animation-delay: 0.35s; }
+.flower-item:nth-child(6) { animation-delay: 0.5s; }
+.flower-item:nth-child(7) { animation-delay: 0.25s; }
+
+@keyframes flowerBloom {
+  0%   { opacity: 0; transform: translateY(24px) scale(0.3); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.flower-head {
+  font-size: 38px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  line-height: 1;
+}
+.flower-stem {
+  width: 3px;
+  height: 28px;
+  background: linear-gradient(to bottom, #4a9c3f, #3d7a34);
+  border-radius: 2px;
+  margin: -2px 0;
+}
+.flower-leaf {
+  width: 12px;
+  height: 6px;
+  background: #5cb85c;
+  border-radius: 0 100% 0 100%;
+  margin-top: -16px;
+  margin-right: 4px;
+  align-self: flex-end;
+}
+
+.bouquet-wrap {
+  position: relative;
+  margin-top: -6px;
+  padding: 8px 14px 4px;
+  background: linear-gradient(135deg, #fdf0f3, #fce4ec, #f8d8e0);
+  border-radius: 6px 6px 16px 16px;
+  box-shadow: 0 2px 8px rgba(180,60,80,0.1);
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+.bouquet-ribbon {
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+}
 .hold-hint {
   font-size: 11px;
   color: var(--text-light);
@@ -395,6 +469,19 @@ body {
     <div class="message-box" id="messageBox">
       <p class="message-text" id="messageText"></p>
       <button class="btn btn-outline" id="screenshotBtn">📸 保存专属海报</button>
+    </div>
+    <!-- 花束 -->
+    <div class="bouquet" id="bouquet">
+      <div class="bouquet-wrap">
+        <span class="bouquet-ribbon">🎀</span>
+        <div class="flower-item"><div class="flower-head">🌹</div><div class="flower-stem"></div><div class="flower-leaf"></div></div>
+        <div class="flower-item"><div class="flower-head">🌸</div><div class="flower-stem"></div><div class="flower-leaf"></div></div>
+        <div class="flower-item"><div class="flower-head">🌷</div><div class="flower-stem"></div><div class="flower-leaf"></div></div>
+        <div class="flower-item"><div class="flower-head">🌹</div><div class="flower-stem"></div><div class="flower-leaf"></div></div>
+        <div class="flower-item"><div class="flower-head">💐</div><div class="flower-stem"></div><div class="flower-leaf"></div></div>
+        <div class="flower-item"><div class="flower-head">🌺</div><div class="flower-stem"></div><div class="flower-leaf"></div></div>
+        <div class="flower-item"><div class="flower-head">🌷</div><div class="flower-stem"></div><div class="flower-leaf"></div></div>
+      </div>
     </div>
     <p class="hold-hint">长按屏幕 · 释放漫天爱心 💗</p>
   </div>
@@ -697,6 +784,7 @@ const posterWrapper = document.getElementById('posterWrapper');
 const posterMsg = document.getElementById('posterMsg');
 const posterHearts = document.getElementById('posterHearts');
 const toast = document.getElementById('toast');
+const bouquet = document.getElementById('bouquet');
 
 function showToast(msg, duration = 2000) {
   toast.textContent = msg;
@@ -729,6 +817,11 @@ generateBtn.addEventListener('click', () => {
   const msg = getRandomMessage(name);
   messageText.innerHTML = msg;
   messageBox.classList.add('show');
+  // 花束动画：先隐藏再显示以重新触发动画
+  bouquet.classList.remove('show');
+  void bouquet.offsetWidth;
+  bouquet.classList.add('show');
+  bouquet.scrollIntoView({ behavior: 'smooth', block: 'center' });
   // 生成海报内容（保留诗词换行）
   const posterText = msg.replace(/<span class="message-name">(.*?)<\/span>/g, '$1')
     .replace(/<br>/g, '\n')
