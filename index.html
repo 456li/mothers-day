@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>母亲节快乐 · 专属祝福</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
+</script>
+<style>
+:root {
+  --card-bg: rgba(255, 255, 255, 0.22);
+  --text: #5c2d3e;
+  --text-light: #8b4557;
+  --gold: #c9976b;
+  --accent: #d44a6a;
+  --pink-light: #fce4ec;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #f48fb1 60%, #e8a0bf 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+}
+
+#heartCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 音乐控制 */
+.music-ctrl {
+  position: fixed;
+  top: 20px; right: 20px;
+  z-index: 100;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.3s;
+  color: var(--accent);
+  box-shadow: 0 4px 16px rgba(180,60,80,0.15);
+}
+.music-ctrl:hover { transform: scale(1.08); }
+.music-ctrl.playing { animation: musicPulse 2s infinite; }
+@keyframes musicPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(180,60,80,0.15); }
+  50% { box-shadow: 0 4px 24px rgba(180,60,80,0.35); }
+}
+
+/* 主容器 */
+.main-container {
+  position: relative;
+  z-index: 1;
+  width: 92vw;
+  max-width: 480px;
+  padding: 20px 0;
+}
+
+/* 顶部装饰文字 */
+.top-badge {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.top-badge span {
+  display: inline-block;
+  font-size: 13px;
+  letter-spacing: 6px;
+  color: var(--gold);
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(6px);
+  padding: 6px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(201,151,107,0.3);
+}
+
+/* 玻璃卡片 */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.45);
+  padding: 36px 28px 32px;
+  box-shadow: 0 8px 40px rgba(150,50,70,0.12), 0 2px 8px rgba(150,50,70,0.06);
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+/* 标题 */
+.title-icon { font-size: 48px; margin-bottom: 4px; }
+.title {
+  font-size: clamp(24px, 5vw, 30px);
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.subtitle {
+  font-size: 13px;
+  color: var(--text-light);
+  letter-spacing: 4px;
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+
+/* 分割线 */
+.divider {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 24px;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,74,106,0.3), transparent);
+}
+.divider-icon { font-size: 16px; color: var(--accent); }
+
+/* 输入区 */
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+.name-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 14px 20px;
+  border: 1.5px solid rgba(212,74,106,0.25);
+  border-radius: 30px;
+  background: rgba(255,255,255,0.5);
+  font-size: 16px;
+  color: var(--text);
+  text-align: center;
+  outline: none;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+.name-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(212,74,106,0.08);
+  background: rgba(255,255,255,0.7);
+}
+.name-input::placeholder { color: #c9a0ad; }
+
+/* 按钮 */
+.btn {
+  display: inline-block;
+  padding: 12px 36px;
+  border-radius: 30px;
+  border: none;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 1px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #d44a6a, #c0395a);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(212,74,106,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(212,74,106,0.4);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  margin-top: 12px;
+}
+.btn-outline:hover {
+  background: rgba(212,74,106,0.06);
+}
+
+/* 文案展示区 */
+.message-box {
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.4);
+  display: none;
+  animation: fadeInUp 0.6s ease;
+}
+.message-box.show { display: block; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.message-text {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--text);
+  text-align: left;
+  text-indent: 2em;
+}
+.message-name {
+  display: inline-block;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* 海报容器（截图用） */
+.poster-wrapper {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 750px;
+  z-index: -1;
+}
+.poster {
+  width: 750px;
+  padding: 60px 50px;
+  background: linear-gradient(135deg, #fff5f7 0%, #ffe0e6 30%, #ffccd5 60%, #ffb3c1 100%);
+  border-radius: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.poster::before {
+  content: '';
+  position: absolute;
+  top: -50px; right: -50px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(255,107,138,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.poster::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: -30px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(255,143,163,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.poster-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #d44a6a;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+.poster-subtitle {
+  font-size: 18px;
+  color: #c9976b;
+  letter-spacing: 6px;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
+}
+.poster-msg {
+  font-size: 24px;
+  line-height: 2;
+  color: #5c2d3e;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  padding: 30px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+.poster-footer {
+  font-size: 16px;
+  color: #c9976b;
+  letter-spacing: 3px;
+  position: relative;
+  z-index: 1;
+}
+.poster-hearts {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.poster-heart {
+  position: absolute;
+  color: rgba(212,74,106,0.12);
+  font-size: 40px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(92,45,62,0.9);
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 24px;
+  font-size: 14px;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s;
+  letter-spacing: 1px;
+}
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+  .card { padding: 28px 18px 24px; border-radius: 20px; }
+  .title { font-size: 22px; }
+  .name-input { max-width: 240px; padding: 12px 16px; font-size: 15px; }
+  .btn { padding: 10px 28px; font-size: 14px; }
+  .message-text { font-size: 14px; }
+  .poster-wrapper { width: 375px; }
+  .poster { width: 375px; padding: 30px 24px; }
+  .poster-title { font-size: 24px; }
+  .poster-subtitle { font-size: 14px; }
+  .poster-msg { font-size: 17px; padding: 20px; }
+  .poster-footer { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="heartCanvas"></canvas>
+
+<!-- 音乐按钮 -->
+<div class="music-ctrl playing" id="musicBtn" title="音乐开关">🎵</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- 主容器 -->
+<div class="main-container">
+  <div class="top-badge"><span>✿ 母亲节 · 2026 ✿</span></div>
+  <div class="card" id="mainCard">
+    <div class="title-icon">🌸</div>
+    <div class="title">母亲节快乐</div>
+    <div class="subtitle">HAPPY MOTHER'S DAY</div>
+    <div class="divider"><span class="divider-icon">❤️</span></div>
+    <div class="input-group">
+      <input
+        type="text"
+        class="name-input"
+        id="nameInput"
+        placeholder="请输入您的名字"
+        maxlength="20"
+        autocomplete="off"
+      >
+    </div>
+    <button class="btn btn-primary" id="generateBtn">✨ 生成专属祝福</button>
+    <div class="message-box" id="messageBox">
+      <p class="message-text" id="messageText"></p>
+      <button class="btn btn-outline" id="screenshotBtn">📸 保存专属海报</button>
+    </div>
+  </div>
+</div>
+
+<!-- 海报截图容器 -->
+<div class="poster-wrapper" id="posterWrapper">
+  <div class="poster" id="poster">
+    <div class="poster-hearts" id="posterHearts"></div>
+    <div class="poster-title">💐 母亲节快乐</div>
+    <div class="poster-subtitle">HAPPY MOTHER'S DAY</div>
+    <div class="poster-msg" id="posterMsg"></div>
+    <div class="poster-footer">—— 致世界上最伟大的人</div>
+  </div>
+</div>
+
+<!-- 背景音乐 -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="bgm.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// ============ 爱心飘落动画 ============
+const canvas = document.getElementById('heartCanvas');
+const ctx = canvas.getContext('2d');
+
+let w, h;
+function resize() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// 爱心颜色
+const heartColors = [
+  '#ff6b8a', '#ff8fa3', '#ffb3c6', '#ff4d6d',
+  '#ff7597', '#ff97b0', '#e85778', '#f06292',
+  '#ff9eb5', '#ffcad4', '#ea5c7c', '#f8a4b8',
+];
+
+// 爱心绘制
+function drawHeart(x, y, size, rotation, alpha) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  const s = size;
+  ctx.moveTo(0, s * 0.3);
+  ctx.bezierCurveTo(0, s * 0.05, -s * 0.45, -s * 0.2, -s * 0.5, s * 0.1);
+  ctx.bezierCurveTo(-s * 0.55, s * 0.4, -s * 0.15, s * 0.65, 0, s);
+  ctx.bezierCurveTo(s * 0.15, s * 0.65, s * 0.55, s * 0.4, s * 0.5, s * 0.1);
+  ctx.bezierCurveTo(s * 0.45, -s * 0.2, 0, s * 0.05, 0, s * 0.3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// 爱心粒子
+class Heart {
+  constructor() {
+    this.reset(true);
+  }
+  reset(init) {
+    this.x = Math.random() * w;
+    this.y = init ? Math.random() * h : -60;
+    this.size = 10 + Math.random() * 28;
+    this.speed = 0.3 + Math.random() * 1.2;
+    this.rotation = (Math.random() - 0.5) * 0.8;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.015;
+    this.wobble = Math.random() * 60;
+    this.wobbleSpeed = 0.003 + Math.random() * 0.008;
+    this.wobbleOffset = Math.random() * Math.PI * 2;
+    this.color = heartColors[Math.floor(Math.random() * heartColors.length)];
+    this.alpha = 0.25 + Math.random() * 0.55;
+    this.alphaFade = 0;
+  }
+  update() {
+    this.y += this.speed;
+    this.x += Math.sin(this.wobbleOffset + this.y * this.wobbleSpeed) * 0.4;
+    this.rotation += this.rotationSpeed;
+    if (this.y > h + 60) {
+      this.reset(false);
+    }
+  }
+  draw() {
+    drawHeart(this.x, this.y, this.size, this.rotation, this.alpha - this.alphaFade);
+  }
+}
+
+const hearts = Array.from({ length: 55 }, () => new Heart());
+
+// 点击生成额外爱心
+window.addEventListener('click', (e) => {
+  for (let i = 0; i < 5; i++) {
+    const h = new Heart();
+    h.x = e.clientX + (Math.random() - 0.5) * 80;
+    h.y = e.clientY + (Math.random() - 0.5) * 40;
+    h.size = 8 + Math.random() * 20;
+    h.speed = 0.5 + Math.random() * 1;
+    hearts.push(h);
+  }
+  // 限制总数
+  while (hearts.length > 150) hearts.shift();
+});
+
+// 动画循环
+function animate() {
+  ctx.clearRect(0, 0, w, h);
+  for (const heart of hearts) {
+    heart.update();
+    heart.draw();
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ============ 专属文案库 ============
+const messages = [
+  '亲爱的<span class="message-name">{name}</span>，母亲节到了。您用温柔撑起家的晴空，用爱浇灌我们的成长。岁月在您鬓角留下霜花，却从未褪去您眼中的光。母亲，您辛苦了，愿您永远被时光温柔以待。',
+  '<span class="message-name">{name}</span>，世间最美的称谓是"母亲"。您的爱如涓涓细流，无声却日夜不息；如春风化雨，温柔却滋养万物。在这个特别的日子里，想对您说：辛苦了，愿您岁岁安康，笑靥如花。',
+  '致最亲爱的<span class="message-name">{name}</span>：您是晨曦中最温柔的呼唤，是黄昏里最暖的灯火。从牙牙学语到独当一面，每一步成长都浸润着您的爱与汗水。母亲节快乐，愿您被岁月善待，永远美丽从容。',
+  '<span class="message-name">{name}</span>，您辛苦了。您把最好的年华给了我们，把最深的牵挂系在我们身上。您的爱是家的底色，是无论走到哪里都亮着的那盏灯。母亲节快乐，愿您幸福常伴，平安喜乐。',
+  '亲爱的<span class="message-name">{name}</span>：有人说，上帝无法无处不在，所以创造了母亲。您是我们的守护天使，用平凡的身躯做着最不平凡的事。母亲节快乐，愿您的每一天都被爱包围。',
+];
+let lastMsgIndex = -1;
+
+function getRandomMessage(name) {
+  let idx;
+  do { idx = Math.floor(Math.random() * messages.length); }
+  while (idx === lastMsgIndex && messages.length > 1);
+  lastMsgIndex = idx;
+  return messages[idx].replace(/\{name\}/g, name);
+}
+
+// ============ 交互逻辑 ============
+const nameInput = document.getElementById('nameInput');
+const generateBtn = document.getElementById('generateBtn');
+const messageBox = document.getElementById('messageBox');
+const messageText = document.getElementById('messageText');
+const screenshotBtn = document.getElementById('screenshotBtn');
+const posterWrapper = document.getElementById('posterWrapper');
+const posterMsg = document.getElementById('posterMsg');
+const posterHearts = document.getElementById('posterHearts');
+const toast = document.getElementById('toast');
+
+function showToast(msg, duration = 2000) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+// 生成海报装饰爱心
+function generatePosterHearts() {
+  let html = '';
+  for (let i = 0; i < 20; i++) {
+    const x = Math.random() * 92;
+    const y = Math.random() * 92;
+    const size = 24 + Math.random() * 48;
+    const rot = Math.random() * 360;
+    html += `<span class="poster-heart" style="left:${x}%;top:${y}%;font-size:${size}px;transform:rotate(${rot}deg);">❤️</span>`;
+  }
+  posterHearts.innerHTML = html;
+}
+
+generateBtn.addEventListener('click', () => {
+  const name = nameInput.value.trim();
+  if (!name) {
+    showToast('请先输入您的名字哦 💝');
+    nameInput.focus();
+    return;
+  }
+  // 显示文案
+  const msg = getRandomMessage(name);
+  messageText.innerHTML = msg;
+  messageBox.classList.add('show');
+  // 生成海报内容
+  posterMsg.textContent = msg.replace(/<[^>]*>/g, '');
+  generatePosterHearts();
+  // 滚动到文案
+  messageBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+// 回车触发生成
+nameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') generateBtn.click();
+});
+
+// ============ 截图功能 ============
+screenshotBtn.addEventListener('click', async () => {
+  screenshotBtn.textContent = '⏳ 生成中...';
+  screenshotBtn.disabled = true;
+  const poster = document.getElementById('poster');
+  // 短暂显示以渲染
+  posterWrapper.style.left = '0';
+  posterWrapper.style.top = '0';
+  posterWrapper.style.zIndex = '1';
+  posterWrapper.style.opacity = '1';
+  // 等待渲染
+  await new Promise(r => setTimeout(r, 200));
+  try {
+    const canvasShot = await html2canvas(poster, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+    });
+    // 下载
+    const link = document.createElement('a');
+    link.download = `母亲节快乐_${nameInput.value.trim()}_专属海报.png`;
+    link.href = canvasShot.toDataURL('image/png');
+    link.click();
+    showToast('✅ 海报已保存！');
+  } catch (err) {
+    console.error(err);
+    showToast('❌ 生成失败，请重试');
+  }
+  // 隐藏回去
+  posterWrapper.style.left = '-9999px';
+  posterWrapper.style.top = '0';
+  posterWrapper.style.zIndex = '-1';
+  posterWrapper.style.opacity = '';
+  screenshotBtn.textContent = '📸 保存专属海报';
+  screenshotBtn.disabled = false;
+});
+
+// ============ 背景音乐 ============
+const bgMusic = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let musicPlaying = true;
+
+// 自动播放（需用户交互）
+let musicInited = false;
+function initMusic() {
+  if (musicInited) return;
+  bgMusic.volume = 0.4;
+  bgMusic.play().then(() => {
+    musicPlaying = true;
+    musicBtn.classList.add('playing');
+    musicBtn.textContent = '🎵';
+  }).catch(() => {
+    musicPlaying = false;
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent = '🔇';
+  });
+  musicInited = true;
+}
+
+document.addEventListener('click', initMusic, { once: true });
+document.addEventListener('touchstart', initMusic, { once: true });
+
+musicBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!musicInited) { initMusic(); return; }
+  if (musicPlaying) {
+    bgMusic.pause();
+    musicPlaying = false;
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent = '🔇';
+  } else {
+    bgMusic.play().then(() => {
+      musicPlaying = true;
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '🎵';
+    }).catch(() => {});
+  }
+});
+
+// ============ 窗口大小变化时更新海报 ============
+window.addEventListener('resize', () => {
+  if (messageBox.classList.contains('show')) {
+    generatePosterHearts();
+  }
+});
+</script>
+</body>
+</html>
