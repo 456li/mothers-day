@@ -450,11 +450,12 @@ const sparkColors = [
 ];
 
 // 爱心绘制
-function drawHeart(x, y, size, rotation, alpha) {
+function drawHeart(x, y, size, rotation, alpha, color) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
   ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
   ctx.beginPath();
   const s = size;
   ctx.moveTo(0, s * 0.3);
@@ -468,11 +469,12 @@ function drawHeart(x, y, size, rotation, alpha) {
 }
 
 // 花瓣绘制（椭圆 + 尖端）
-function drawPetal(x, y, size, rotation, alpha) {
+function drawPetal(x, y, size, rotation, alpha, color) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
   ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.5, size * 0.22, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -531,7 +533,7 @@ class Heart {
     }
   }
   draw() {
-    drawHeart(this.x, this.y, this.size, this.rotation, this.alpha - this.alphaFade);
+    drawHeart(this.x, this.y, this.size, this.rotation, this.alpha - this.alphaFade, this.color);
   }
 }
 
@@ -555,7 +557,7 @@ class Petal {
     this.rotation += this.rotationSpeed;
     if (this.y > h + 30) { this.y = -30; this.x = Math.random() * w; }
   }
-  draw() { drawPetal(this.x, this.y, this.size, this.rotation, this.alpha); }
+  draw() { drawPetal(this.x, this.y, this.size, this.rotation, this.alpha, this.color); }
 }
 
 // 星光粒子
